@@ -4,7 +4,7 @@ import com.badlogic.gdx.Game;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
-import fr.jonathangeoffroy.skit.view.actors.screens.SkitLoaderScreen;
+import fr.jonathangeoffroy.skit.view.screens.SkitLoaderScreen;
 
 public class SkitGame extends Game {
     SpriteBatch batch;

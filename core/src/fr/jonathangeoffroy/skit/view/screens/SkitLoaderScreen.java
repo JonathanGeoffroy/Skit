@@ -1,10 +1,8 @@
-package fr.jonathangeoffroy.skit.view.actors.screens;
+package fr.jonathangeoffroy.skit.view.screens;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
@@ -19,37 +17,42 @@ import fr.jonathangeoffroy.skit.model.Person;
 import fr.jonathangeoffroy.skit.model.Skit;
 
 /**
+ * Load all textures of a Skit
+ * And draw a loading bar until all textures are loaded
+ *
  * @author Jonathan Geoffroy
  */
-public class SkitLoaderScreen implements Screen {
-
-    private final SkitGame game;
-    private final OrthographicCamera camera;
-    private String jsonPath;
+public class SkitLoaderScreen extends SkitScreen {
     private BitmapFont font;
+    private Skit skit;
 
     public SkitLoaderScreen(SkitGame game, String jsonPath) {
-        this.game = game;
-        this.jsonPath = jsonPath;
-        camera = new OrthographicCamera();
-        camera.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        super(game);
+        Json json = new Json();
+        skit = json.fromJson(Skit.class, Gdx.files.internal(jsonPath));
     }
 
     @Override
     public void show() {
-        Json json = new Json();
-        Skit skit = json.fromJson(Skit.class, Gdx.files.internal(jsonPath));
-
+        // Add all useful people for this skit
         Set<Person> peopleSet = new LinkedHashSet<Person>();
         for (Dialog dialog : skit.getDialogs()) {
             peopleSet.add(dialog.getPerson());
         }
 
+        // Add people who's just here at the beginning,
+        // Useful for skits where people has a state only at the beginning
+        for (Person p : skit.getPeople()) {
+            peopleSet.add(p);
+        }
+
+        // Load all assets for this skit
         AssetManager assetManager = game.getAssetManager();
         for (Person person : peopleSet) {
             assetManager.load(findTexturePath(person), Texture.class);
         }
 
+        // Load a default font in order to draw a loading screen
         font = new BitmapFont();
     }
 
@@ -57,7 +60,7 @@ public class SkitLoaderScreen implements Screen {
     public void render(float delta) {
         AssetManager manager = game.getAssetManager();
         if (manager.update()) {
-            game.setScreen(new SkitViewerScreen(game));
+            game.setScreen(new SkitViewerScreen(game, skit));
             dispose();
         }
 
@@ -82,43 +85,7 @@ public class SkitLoaderScreen implements Screen {
     }
 
     @Override
-    public void resize(int width, int height) {
-
-    }
-
-    @Override
-    public void pause() {
-
-    }
-
-    @Override
-    public void resume() {
-
-    }
-
-    @Override
-    public void hide() {
-
-    }
-
-    @Override
     public void dispose() {
         font.dispose();
-    }
-
-    private String findTexturePath(Person person) {
-        StringBuilder builder = new StringBuilder();
-        builder
-                .append("people/")
-                .append(person.getName())
-                .append('/')
-                .append(person.getName());
-        if (person.getState() != null) {
-            builder
-                    .append('-')
-                    .append(person.getState());
-        }
-        builder.append(".png");
-        return builder.toString();
     }
 }
