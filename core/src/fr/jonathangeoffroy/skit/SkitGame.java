@@ -1,27 +1,40 @@
 package fr.jonathangeoffroy.skit;
 
-import com.badlogic.gdx.ApplicationAdapter;
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.Game;
+import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
-public class SkitGame extends ApplicationAdapter {
-	SpriteBatch batch;
-	Texture img;
-	
-	@Override
+import fr.jonathangeoffroy.skit.view.actors.screens.SkitLoaderScreen;
+
+public class SkitGame extends Game {
+    SpriteBatch batch;
+    private AssetManager assetManager;
+
+    @Override
 	public void create () {
 		batch = new SpriteBatch();
-		img = new Texture("badlogic.jpg");
-	}
+        assetManager = new AssetManager();
+        this.setScreen(new SkitLoaderScreen(this, "tests/test1.json"));
+    }
 
 	@Override
 	public void render () {
-		Gdx.gl.glClearColor(1, 0, 0, 1);
-		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-		batch.begin();
-		batch.draw(img, 0, 0);
-		batch.end();
-	}
+        super.render();
+    }
+
+    public AssetManager getAssetManager() {
+        return assetManager;
+    }
+
+    public void setAssetManager(AssetManager assetManager) {
+        this.assetManager = assetManager;
+    }
+
+    public SpriteBatch getBatch() {
+        return batch;
+    }
+
+    public void setBatch(SpriteBatch batch) {
+        this.batch = batch;
+    }
 }
