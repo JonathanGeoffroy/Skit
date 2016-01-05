@@ -27,7 +27,7 @@ public class SkitViewerScreen extends SkitScreen {
 
     @Override
     public void show() {
-        textActor = new TextActor(skit);
+        textActor = new TextActor(skit, game.getAssetManager());
         textActor.setBounds(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight() / 3);
         textActor.show();
 

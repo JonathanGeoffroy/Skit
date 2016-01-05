@@ -23,6 +23,7 @@ import fr.jonathangeoffroy.skit.model.Skit;
  * @author Jonathan Geoffroy
  */
 public class SkitLoaderScreen extends SkitScreen {
+    public static final String TRIANGLE_DOWN_IMAGE = "images/triangle_down.png";
     private BitmapFont font;
     private Skit skit;
 
@@ -51,6 +52,8 @@ public class SkitLoaderScreen extends SkitScreen {
         for (Character character : peopleSet) {
             assetManager.load(findTexturePath(character), Texture.class);
         }
+
+        assetManager.load(TRIANGLE_DOWN_IMAGE, Texture.class);
 
         // Load a default font in order to draw a loading screen
         font = new BitmapFont();

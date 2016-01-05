@@ -1,13 +1,17 @@
 package fr.jonathangeoffroy.skit.view.actors;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.assets.AssetManager;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.utils.Array;
 
 import fr.jonathangeoffroy.skit.controller.observer.Observable;
 import fr.jonathangeoffroy.skit.controller.observer.TextActorListener;
 import fr.jonathangeoffroy.skit.model.Skit;
+import fr.jonathangeoffroy.skit.view.screens.SkitLoaderScreen;
 
 /**
  * @author Jonathan Geoffroy
@@ -15,15 +19,19 @@ import fr.jonathangeoffroy.skit.model.Skit;
 public class TextActor extends SkitActor implements Observable<TextActorListener> {
     private final static float SECONDS_PER_LETTER = 0.033f;
     private static final float MARGIN = 0.05f;
+    private static final float SECONDS_PER_BLINKING = 0.90f;
+    private static final float TRIANGLE_SIZE = 0.08f;
 
     private Array<TextActorListener> observers;
     private float deltaTime;
     private BitmapFont font;
+    private final TextureRegion triangleDown;
     private boolean textDisplayed;
 
-    public TextActor(Skit skit) {
+    public TextActor(Skit skit, AssetManager assetManager) {
         super(skit);
         font = new BitmapFont();
+        triangleDown = new TextureRegion(assetManager.get(SkitLoaderScreen.TRIANGLE_DOWN_IMAGE, Texture.class), 96, 52);
         observers = new Array<TextActorListener>();
     }
 
@@ -32,6 +40,7 @@ public class TextActor extends SkitActor implements Observable<TextActorListener
         super.draw(batch, parentAlpha);
         deltaTime += Gdx.graphics.getDeltaTime();
 
+        // Display text
         String textToDisplay;
         if (!textDisplayed) {
             int nbLettersToDisplay = Math.min(currentDialog.getText().length(), (int) (deltaTime / SECONDS_PER_LETTER));
@@ -43,9 +52,22 @@ public class TextActor extends SkitActor implements Observable<TextActorListener
             textToDisplay = currentDialog.getText();
         }
 
-
+        final float margin = Math.max(getWidth(), getHeight()) * MARGIN;
         // TODO: split text into multiple lines when needed
-        font.draw(batch, textToDisplay, getX() + MARGIN * getWidth(), getY() + getHeight());
+        font.draw(batch, textToDisplay, getX() + margin, getY() + getHeight());
+
+        // If the text is entirely displayed, draw a blinking triangle
+        // in order to invite user to play the next dialog
+        if (textDisplayed && deltaTime % SECONDS_PER_BLINKING >= SECONDS_PER_BLINKING / 2) {
+            final float triangleSize = Math.min(getWidth(), getHeight()) * TRIANGLE_SIZE;
+
+            batch.draw(
+                    triangleDown,
+                    getX() + getWidth() - triangleSize - margin,
+                    getY() + getHeight() - margin,
+                    triangleSize,
+                    triangleSize);
+        }
     }
 
     @Override
