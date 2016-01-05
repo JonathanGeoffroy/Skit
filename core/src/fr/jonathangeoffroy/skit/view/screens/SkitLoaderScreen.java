@@ -12,8 +12,8 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 import fr.jonathangeoffroy.skit.SkitGame;
+import fr.jonathangeoffroy.skit.model.Character;
 import fr.jonathangeoffroy.skit.model.Dialog;
-import fr.jonathangeoffroy.skit.model.Person;
 import fr.jonathangeoffroy.skit.model.Skit;
 
 /**
@@ -35,21 +35,21 @@ public class SkitLoaderScreen extends SkitScreen {
     @Override
     public void show() {
         // Add all useful people for this skit
-        Set<Person> peopleSet = new LinkedHashSet<Person>();
+        Set<fr.jonathangeoffroy.skit.model.Character> peopleSet = new LinkedHashSet<Character>();
         for (Dialog dialog : skit.getDialogs()) {
-            peopleSet.add(dialog.getPerson());
+            peopleSet.add(dialog.getSpeaker());
         }
 
         // Add people who's just here at the beginning,
         // Useful for skits where people has a state only at the beginning
-        for (Person p : skit.getPeople()) {
+        for (Character p : skit.getPeople()) {
             peopleSet.add(p);
         }
 
         // Load all assets for this skit
         AssetManager assetManager = game.getAssetManager();
-        for (Person person : peopleSet) {
-            assetManager.load(findTexturePath(person), Texture.class);
+        for (Character character : peopleSet) {
+            assetManager.load(findTexturePath(character), Texture.class);
         }
 
         // Load a default font in order to draw a loading screen

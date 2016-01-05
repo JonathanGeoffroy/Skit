@@ -7,7 +7,7 @@ import com.badlogic.gdx.utils.Array;
  */
 public class Skit {
     private Array<Dialog> dialogs;
-    private Array<Person> people;
+    private Array<Character> people;
 
     public Array<Dialog> getDialogs() {
         return dialogs;
@@ -17,11 +17,11 @@ public class Skit {
         this.dialogs = dialogs;
     }
 
-    public Array<Person> getPeople() {
+    public Array<Character> getPeople() {
         return people;
     }
 
-    public void setPeople(Array<Person> people) {
+    public void setPeople(Array<Character> people) {
         this.people = people;
     }
 }

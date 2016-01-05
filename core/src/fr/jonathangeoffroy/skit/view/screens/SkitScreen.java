@@ -5,7 +5,6 @@ import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 
 import fr.jonathangeoffroy.skit.SkitGame;
-import fr.jonathangeoffroy.skit.model.Person;
 
 /**
  * @author Jonathan Geoffroy
@@ -21,22 +20,22 @@ public abstract class SkitScreen extends ScreenAdapter {
     }
 
     /**
-     * Retrieve the path of a texture using <code>person</code> values
+     * Retrieve the path of a texture using <code>character</code> values
      *
-     * @param person the person we have to find the texture's path
+     * @param character the character we have to find the texture's path
      * @return the texture's path
      */
-    public static String findTexturePath(Person person) {
+    public static String findTexturePath(fr.jonathangeoffroy.skit.model.Character character) {
         StringBuilder builder = new StringBuilder();
         builder
                 .append("people/")
-                .append(person.getName())
+                .append(character.getName())
                 .append('/')
-                .append(person.getName());
-        if (person.getState() != null) {
+                .append(character.getName());
+        if (character.getState() != null) {
             builder
                     .append('-')
-                    .append(person.getState());
+                    .append(character.getState());
         }
         builder.append(".png");
         return builder.toString();

@@ -4,7 +4,7 @@ package fr.jonathangeoffroy.skit.model;
  * @author Jonathan Geoffroy
  */
 public class Dialog {
-    private Person person;
+    private Character speaker;
     private String text;
 
     @Override
@@ -14,23 +14,23 @@ public class Dialog {
 
         Dialog dialog = (Dialog) o;
 
-        return person.equals(dialog.person) && text.equals(dialog.text);
+        return speaker.equals(dialog.speaker) && text.equals(dialog.text);
 
     }
 
     @Override
     public int hashCode() {
-        int result = person.hashCode();
+        int result = speaker.hashCode();
         result = 31 * result + text.hashCode();
         return result;
     }
 
-    public Person getPerson() {
-        return person;
+    public Character getSpeaker() {
+        return speaker;
     }
 
-    public void setPerson(Person person) {
-        this.person = person;
+    public void setSpeaker(Character speaker) {
+        this.speaker = speaker;
     }
 
     public String getText() {
