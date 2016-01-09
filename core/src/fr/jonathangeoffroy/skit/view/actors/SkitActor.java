@@ -28,7 +28,7 @@ public abstract class SkitActor extends Actor {
      * @return true if and only if the skit is over (i.e. if there is no more dialogs to run)
      */
     public boolean nextDialog() {
-        if (skitIndex == skit.getDialogs().size) {
+        if (skitIndex == skit.getDialogs().size - 1) {
             return true;
         }
 

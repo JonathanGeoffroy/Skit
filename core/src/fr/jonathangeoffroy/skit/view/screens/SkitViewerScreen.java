@@ -37,6 +37,8 @@ public class SkitViewerScreen extends SkitScreen {
 
         stage.addActor(peopleActor);
         stage.addActor(textActor);
+
+        Gdx.input.setInputProcessor(textActor);
     }
 
     @Override

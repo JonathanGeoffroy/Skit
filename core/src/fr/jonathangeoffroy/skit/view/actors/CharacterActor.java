@@ -7,12 +7,10 @@ import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 
-import fr.jonathangeoffroy.skit.controller.observer.TextActorListener;
-
 /**
  * @author Jonathan Geoffroy
  */
-public class CharacterActor extends Actor implements TextActorListener {
+public class CharacterActor extends Actor {
     private static final int FRAME_SIZE = 128;
     private static final int NB_FRAMES = 8;
     private static final float TIME_PER_FRAME = 0.16f;
@@ -42,14 +40,6 @@ public class CharacterActor extends Actor implements TextActorListener {
             keyFrame = animation.getKeyFrames()[0];
         }
         batch.draw(keyFrame, getX(), getY(), getWidth(), getHeight());
-    }
-
-    /**
-     * Stop the animation as soon as the text is entirely displayed
-     */
-    @Override
-    public void onTextDisplayed() {
-        speaking = false;
     }
 
     public boolean isSpeaking() {

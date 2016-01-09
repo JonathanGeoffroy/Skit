@@ -1,6 +1,7 @@
 package fr.jonathangeoffroy.skit.view.actors;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
@@ -16,7 +17,7 @@ import fr.jonathangeoffroy.skit.view.screens.SkitLoaderScreen;
 /**
  * @author Jonathan Geoffroy
  */
-public class TextActor extends SkitActor implements Observable<TextActorListener> {
+public class TextActor extends SkitActor implements Observable<TextActorListener>, InputProcessor {
     private final static float SECONDS_PER_LETTER = 0.033f;
     private static final float MARGIN = 0.05f;
     private static final float SECONDS_PER_BLINKING = 0.90f;
@@ -82,6 +83,21 @@ public class TextActor extends SkitActor implements Observable<TextActorListener
         observers.removeValue(observer, true);
     }
 
+    @Override
+    public boolean nextDialog() {
+        if (super.nextDialog()) {
+            return true;
+        }
+        setTextDisplayed(false);
+        deltaTime = 0;
+
+        for (TextActorListener observer : observers) {
+            observer.onNextDialog();
+        }
+
+        return false;
+    }
+
     private void setTextDisplayed(boolean textDisplayed) {
         this.textDisplayed = textDisplayed;
 
@@ -90,6 +106,62 @@ public class TextActor extends SkitActor implements Observable<TextActorListener
                 observer.onTextDisplayed();
             }
         }
+    }
+
+    @Override
+    public boolean keyDown(int keycode) {
+        return false;
+    }
+
+    @Override
+    public boolean keyUp(int keycode) {
+        return false;
+    }
+
+    @Override
+    public boolean keyTyped(char character) {
+        return false;
+    }
+
+    @Override
+    public boolean touchDown(int screenX, int screenY, int pointer, int button) {
+        return false;
+    }
+
+    @Override
+    public boolean touchUp(int screenX, int screenY, int pointer, int button) {
+        // Check that the user clicked on the text
+        float touchedY = Gdx.graphics.getHeight() - screenY;
+        if (screenX < getX() || screenX > getX() + getWidth() ||
+                touchedY < getY() || touchedY > getY() + getHeight()) {
+            return false;
+        }
+
+        // If the text is already displayed,
+        // then notify observers that we'll display the next dialog,
+        // otherwise, display the dialog
+        if (textDisplayed) {
+            nextDialog();
+        } else {
+            setTextDisplayed(true);
+        }
+
+        return true;
+    }
+
+    @Override
+    public boolean touchDragged(int screenX, int screenY, int pointer) {
+        return false;
+    }
+
+    @Override
+    public boolean mouseMoved(int screenX, int screenY) {
+        return false;
+    }
+
+    @Override
+    public boolean scrolled(int amount) {
+        return false;
     }
 }
 
