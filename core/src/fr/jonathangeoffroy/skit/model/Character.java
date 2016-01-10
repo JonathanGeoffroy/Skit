@@ -14,15 +14,12 @@ public class Character implements Comparable<Character> {
 
         Character character = (Character) o;
 
-        return name.equals(character.name) && !(state != null ? !state.equals(character.state) : character.state != null);
-
+        return name.equals(character.name);
     }
 
     @Override
     public int hashCode() {
-        int result = name.hashCode();
-        result = 31 * result + (state != null ? state.hashCode() : 0);
-        return result;
+        return name.hashCode();
     }
 
     public String getName() {

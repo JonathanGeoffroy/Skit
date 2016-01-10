@@ -2,13 +2,13 @@ package fr.jonathangeoffroy.skit.view.actors;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputProcessor;
-import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.utils.Array;
 
+import fr.jonathangeoffroy.skit.SkitGame;
 import fr.jonathangeoffroy.skit.controller.observer.Observable;
 import fr.jonathangeoffroy.skit.controller.observer.TextActorListener;
 import fr.jonathangeoffroy.skit.model.Skit;
@@ -29,10 +29,10 @@ public class TextActor extends SkitActor implements Observable<TextActorListener
     private final TextureRegion triangleDown;
     private boolean textDisplayed;
 
-    public TextActor(Skit skit, AssetManager assetManager) {
+    public TextActor(Skit skit) {
         super(skit);
         font = new BitmapFont();
-        triangleDown = new TextureRegion(assetManager.get(SkitLoaderScreen.TRIANGLE_DOWN_IMAGE, Texture.class), 96, 52);
+        triangleDown = new TextureRegion(SkitGame.getAssetManager().get(SkitLoaderScreen.TRIANGLE_DOWN_IMAGE, Texture.class), 96, 52);
         observers = new Array<TextActorListener>();
     }
 

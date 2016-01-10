@@ -1,7 +1,5 @@
 package fr.jonathangeoffroy.skit.view.actors;
 
-import com.badlogic.gdx.assets.AssetManager;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
 
 import java.util.Map;
@@ -10,39 +8,42 @@ import java.util.TreeMap;
 import fr.jonathangeoffroy.skit.controller.observer.TextActorListener;
 import fr.jonathangeoffroy.skit.model.Character;
 import fr.jonathangeoffroy.skit.model.Skit;
-import fr.jonathangeoffroy.skit.view.screens.SkitScreen;
 
 /**
  * @author Jonathan Geoffroy
  */
 public class PeopleActor extends SkitActor implements TextActorListener {
-    private final AssetManager assetManager;
     private final TextActor textActor;
     private Map<Character, CharacterActor> actors;
     private CharacterActor speaker;
 
-    public PeopleActor(Skit skit, AssetManager assetManager, TextActor textActor) {
+    public PeopleActor(Skit skit, TextActor textActor) {
         super(skit);
-        this.assetManager = assetManager;
         this.textActor = textActor;
         actors = new TreeMap<Character, CharacterActor>();
     }
 
     @Override
     public void show() {
+        CharacterActor actor;
+
+        // Load all actors for this skit
+        for (Character character : skit.computeAllCharacters()) {
+            actor = new CharacterActor(character);
+            actors.put(character, actor);
+        }
+
+        // compute the position of each characters who's here at the beginning of the skit
         int nbPeople = skit.getPeople().size;
         float peopleSize = Math.min(getWidth() / 3, getHeight() / 3);
 
-        CharacterActor actor;
         for (int i = 0; i < nbPeople; i++) {
             Character character = skit.getPeople().get(i);
-            actor = new CharacterActor(assetManager.get(SkitScreen.findTexturePath(character), Texture.class));
+            actor = actors.get(character);
 
             // TODO: compute right position depending on the number of actors.
             actor.setPosition(getX() + (getWidth() / 2 - peopleSize / 2), getY() + (getHeight() / 2 - peopleSize / 2));
             actor.setSize(peopleSize, peopleSize);
-
-            actors.put(character, actor);
         }
 
         textActor.addObserver(this);
@@ -53,8 +54,12 @@ public class PeopleActor extends SkitActor implements TextActorListener {
         if (speaker != null) {
             speaker.setSpeaking(false);
         }
-        speaker = actors.get(currentDialog.getSpeaker());
-        speaker.setSpeaking(true);
+
+        final Character speaker = currentDialog.getSpeaker();
+        this.speaker = actors.get(speaker);
+        this.speaker.setCharacter(speaker);
+        this.speaker.changeAnimation();
+        this.speaker.setSpeaking(true);
     }
 
     @Override

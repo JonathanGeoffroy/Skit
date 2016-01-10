@@ -8,12 +8,11 @@ import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.utils.Json;
 
-import java.util.LinkedHashSet;
+import java.util.Map;
 import java.util.Set;
 
 import fr.jonathangeoffroy.skit.SkitGame;
 import fr.jonathangeoffroy.skit.model.Character;
-import fr.jonathangeoffroy.skit.model.Dialog;
 import fr.jonathangeoffroy.skit.model.Skit;
 
 /**
@@ -35,22 +34,14 @@ public class SkitLoaderScreen extends SkitScreen {
 
     @Override
     public void show() {
-        // Add all useful people for this skit
-        Set<fr.jonathangeoffroy.skit.model.Character> peopleSet = new LinkedHashSet<Character>();
-        for (Dialog dialog : skit.getDialogs()) {
-            peopleSet.add(dialog.getSpeaker());
-        }
-
-        // Add people who's just here at the beginning,
-        // Useful for skits where people has a state only at the beginning
-        for (Character p : skit.getPeople()) {
-            peopleSet.add(p);
-        }
-
         // Load all assets for this skit
-        AssetManager assetManager = game.getAssetManager();
-        for (Character character : peopleSet) {
-            assetManager.load(findTexturePath(character), Texture.class);
+        AssetManager assetManager = SkitGame.getAssetManager();
+        Map<Character, Set<String>> statesCharacters = skit.computeAllStatesCharacters();
+        for (Character character : statesCharacters.keySet()) {
+            Set<String> states = statesCharacters.get(character);
+            for (String state : states) {
+                assetManager.load(findTexturePath(character.getName(), state), Texture.class);
+            }
         }
 
         assetManager.load(TRIANGLE_DOWN_IMAGE, Texture.class);
@@ -61,7 +52,7 @@ public class SkitLoaderScreen extends SkitScreen {
 
     @Override
     public void render(float delta) {
-        AssetManager manager = game.getAssetManager();
+        AssetManager manager = SkitGame.getAssetManager();
         if (manager.update()) {
             game.setScreen(new SkitViewerScreen(game, skit));
             dispose();

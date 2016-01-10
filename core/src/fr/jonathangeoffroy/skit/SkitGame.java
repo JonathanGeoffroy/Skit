@@ -7,13 +7,12 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import fr.jonathangeoffroy.skit.view.screens.SkitLoaderScreen;
 
 public class SkitGame extends Game {
-    SpriteBatch batch;
-    private AssetManager assetManager;
+    private SpriteBatch batch;
+    private final static AssetManager assetManager = new AssetManager();
 
     @Override
 	public void create () {
 		batch = new SpriteBatch();
-        assetManager = new AssetManager();
         this.setScreen(new SkitLoaderScreen(this, "tests/test1.json"));
     }
 
@@ -22,12 +21,8 @@ public class SkitGame extends Game {
         super.render();
     }
 
-    public AssetManager getAssetManager() {
+    public static AssetManager getAssetManager() {
         return assetManager;
-    }
-
-    public void setAssetManager(AssetManager assetManager) {
-        this.assetManager = assetManager;
     }
 
     public SpriteBatch getBatch() {
