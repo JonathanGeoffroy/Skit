@@ -13,6 +13,7 @@ import fr.jonathangeoffroy.skit.model.Skit;
  * @author Jonathan Geoffroy
  */
 public class PeopleActor extends SkitActor implements TextActorListener {
+    private static final float PEOPLE_MARGIN = 0.10f;
     private final TextActor textActor;
     private Map<Character, CharacterActor> actors;
     private CharacterActor speaker;
@@ -35,14 +36,16 @@ public class PeopleActor extends SkitActor implements TextActorListener {
 
         // compute the position of each characters who's here at the beginning of the skit
         int nbPeople = skit.getPeople().size;
-        float peopleSize = Math.min(getWidth() / 3, getHeight() / 3);
+        float peopleSize = Math.min(getWidth() / 4, getHeight() / 4);
 
         for (int i = 0; i < nbPeople; i++) {
             Character character = skit.getPeople().get(i);
             actor = actors.get(character);
 
             // TODO: compute right position depending on the number of actors.
-            actor.setPosition(getX() + (getWidth() / 2 - peopleSize / 2), getY() + (getHeight() / 2 - peopleSize / 2));
+            float positionX = getX() + (getWidth() / (nbPeople + 1) - peopleSize / 2) + i * (peopleSize + PEOPLE_MARGIN * getWidth());
+            float positionY = getY() + (getHeight() / 2 - peopleSize / 2);
+            actor.setPosition(positionX, positionY);
             actor.setSize(peopleSize, peopleSize);
         }
 

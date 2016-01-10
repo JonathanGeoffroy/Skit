@@ -13,7 +13,7 @@ public class SkitGame extends Game {
     @Override
 	public void create () {
 		batch = new SpriteBatch();
-        this.setScreen(new SkitLoaderScreen(this, "tests/test1.json"));
+        this.setScreen(new SkitLoaderScreen(this, "tests/test2.json"));
     }
 
 	@Override
