@@ -13,7 +13,7 @@ import fr.jonathangeoffroy.skit.model.Skit;
  * @author Jonathan Geoffroy
  */
 public class PeopleActor extends SkitActor implements TextActorListener {
-    private static final float PEOPLE_MARGIN = 0.10f;
+    private static final int MAX_PEOPLE_PER_ROW = 3;
     private final TextActor textActor;
     private Map<Character, CharacterActor> actors;
     private CharacterActor speaker;
@@ -36,15 +36,21 @@ public class PeopleActor extends SkitActor implements TextActorListener {
 
         // compute the position of each characters who's here at the beginning of the skit
         int nbPeople = skit.getPeople().size;
-        float peopleSize = Math.min(getWidth() / 4, getHeight() / 4);
+        int nbColumns = nbPeople / MAX_PEOPLE_PER_ROW + (nbPeople % MAX_PEOPLE_PER_ROW == 0 ? 0 : 1);
+        int nbRows = nbPeople > MAX_PEOPLE_PER_ROW ? MAX_PEOPLE_PER_ROW : nbPeople;
+        float peopleSize = Math.min(getWidth() / (MAX_PEOPLE_PER_ROW + 1), getHeight() / (MAX_PEOPLE_PER_ROW + 1));
 
         for (int i = 0; i < nbPeople; i++) {
             Character character = skit.getPeople().get(i);
             actor = actors.get(character);
 
-            // TODO: compute right position depending on the number of actors.
-            float positionX = getX() + (getWidth() / (nbPeople + 1) - peopleSize / 2) + i * (peopleSize + PEOPLE_MARGIN * getWidth());
-            float positionY = getY() + (getHeight() / 2 - peopleSize / 2);
+            float positionX, positionY;
+
+            // what a magic placement here!
+            // TODO: simplify the position computation.
+            positionX = getX() + (i % nbRows + 1) * getWidth() / (nbRows + 1) - peopleSize / 2;
+            positionY = getY() + getHeight() - peopleSize - i / nbRows * getHeight() / (nbColumns + 1) - getHeight() / nbRows / 2;
+
             actor.setPosition(positionX, positionY);
             actor.setSize(peopleSize, peopleSize);
         }
