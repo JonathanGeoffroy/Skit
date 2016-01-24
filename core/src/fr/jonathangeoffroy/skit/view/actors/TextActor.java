@@ -42,15 +42,18 @@ public class TextActor extends SkitActor implements Observable<TextActorListener
         deltaTime += Gdx.graphics.getDeltaTime();
 
         // Display text
-        String textToDisplay;
+        StringBuilder textToDisplay = new StringBuilder();
+        textToDisplay
+                .append(currentDialog.getSpeaker().getName())
+                .append(": ");
         if (!textDisplayed) {
             int nbLettersToDisplay = Math.min(currentDialog.getText().length(), (int) (deltaTime / SECONDS_PER_LETTER));
-            textToDisplay = currentDialog.getText().substring(0, nbLettersToDisplay);
+            textToDisplay.append(currentDialog.getText().substring(0, nbLettersToDisplay));
             if (textToDisplay.length() == currentDialog.getText().length()) {
                 setTextDisplayed(true);
             }
         } else {
-            textToDisplay = currentDialog.getText();
+            textToDisplay.append(currentDialog.getText());
         }
 
         final float margin = Math.max(getWidth(), getHeight()) * MARGIN;
