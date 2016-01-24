@@ -6,6 +6,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Array;
 
 import fr.jonathangeoffroy.skit.SkitGame;
@@ -13,6 +14,9 @@ import fr.jonathangeoffroy.skit.controller.observer.Observable;
 import fr.jonathangeoffroy.skit.controller.observer.TextActorListener;
 import fr.jonathangeoffroy.skit.model.Skit;
 import fr.jonathangeoffroy.skit.view.screens.SkitLoaderScreen;
+import fr.jonathangeoffroy.skit.view.utils.SkitGlyphLayout;
+
+import static com.badlogic.gdx.graphics.Color.BLACK;
 
 /**
  * @author Jonathan Geoffroy
@@ -23,42 +27,91 @@ public class TextActor extends SkitActor implements Observable<TextActorListener
     private static final float SECONDS_PER_BLINKING = 0.90f;
     private static final float TRIANGLE_SIZE = 0.08f;
 
+    /**
+     * Observers which receive #onTextDisplayed as soon as the current dialog is entirelly displayed
+     */
     private Array<TextActorListener> observers;
+
+    /**
+     * Useful to know how much character to draw on the screen
+     */
     private float deltaTime;
+
+    /**
+     * The font used to draw the current dialog
+     */
     private BitmapFont font;
     private final TextureRegion triangleDown;
+
+    /**
+     * true if and only if the current dialog has been entirely displayed
+     */
     private boolean textDisplayed;
+
+    /**
+     * The number of current dialog's characters which have already been displayed on the screen
+     */
+    private int displayedTextLength;
+
+    /**
+     * The real text to display,
+     * by taking account on:
+     * <ul>
+     * <li>the text animation</li>
+     * <li>the text scrolling if the current dialog is too long</li>
+     * </ul>
+     */
+    private StringBuilder textToDisplay;
+
+    /**
+     * Useful to know if the text is too long to be drawn on the screen
+     */
+    private SkitGlyphLayout glyphLayout;
 
     public TextActor(Skit skit) {
         super(skit);
+        glyphLayout = new SkitGlyphLayout();
+        textToDisplay = new StringBuilder();
         font = new BitmapFont();
         triangleDown = new TextureRegion(SkitGame.getAssetManager().get(SkitLoaderScreen.TRIANGLE_DOWN_IMAGE, Texture.class), 96, 52);
         observers = new Array<TextActorListener>();
     }
 
     @Override
+    public void show() {
+        super.show();
+        resetDialog();
+    }
+
+    @Override
     public void draw(Batch batch, float parentAlpha) {
         super.draw(batch, parentAlpha);
         deltaTime += Gdx.graphics.getDeltaTime();
+        final float margin = Math.max(getWidth(), getHeight()) * MARGIN;
 
         // Display text
-        StringBuilder textToDisplay = new StringBuilder();
-        textToDisplay
-                .append(currentDialog.getSpeaker().getName())
-                .append(": ");
         if (!textDisplayed) {
-            int nbLettersToDisplay = Math.min(currentDialog.getText().length(), (int) (deltaTime / SECONDS_PER_LETTER));
-            textToDisplay.append(currentDialog.getText().substring(0, nbLettersToDisplay));
-            if (textToDisplay.length() == currentDialog.getText().length()) {
-                setTextDisplayed(true);
+            // Compute the text to display
+            int newDisplayedTextLength = Math.min(currentDialog.getText().length(), (int) (deltaTime / SECONDS_PER_LETTER));
+            if (newDisplayedTextLength - displayedTextLength > 0) {
+                textToDisplay.append(currentDialog.getText().substring(displayedTextLength, newDisplayedTextLength));
+                if (newDisplayedTextLength == currentDialog.getText().length()) {
+                    setTextDisplayed(true);
+                } else {
+                    // If the text's height is greater than the Actor's height, remove the first text line
+                    glyphLayout.setText(font, textToDisplay.toString(), BLACK, getWidth() - margin * 2, Align.topLeft, true);
+                    if (glyphLayout.height >= getHeight() - 2 * margin) {
+                        final int speakerNameLength = currentDialog.getSpeaker().getName().length() + 2;
+                        textToDisplay.delete(speakerNameLength, glyphLayout.firstLine().length());
+                    }
+                }
             }
-        } else {
-            textToDisplay.append(currentDialog.getText());
+
+            displayedTextLength = newDisplayedTextLength;
         }
 
-        final float margin = Math.max(getWidth(), getHeight()) * MARGIN;
-        // TODO: split text into multiple lines when needed
-        font.draw(batch, textToDisplay, getX() + margin, getY() + getHeight());
+        // Draw the text, and automatically split it in multiple line if needed
+        font.draw(batch, textToDisplay, getX() + margin, getY() + getHeight() - margin, getWidth() - margin * 2, Align.topLeft, true);
 
         // If the text is entirely displayed, draw a blinking triangle
         // in order to invite user to play the next dialog
@@ -67,8 +120,8 @@ public class TextActor extends SkitActor implements Observable<TextActorListener
 
             batch.draw(
                     triangleDown,
-                    getX() + getWidth() - triangleSize - margin,
-                    getY() + getHeight() - margin,
+                    getX() + getWidth() - margin,
+                    getY() + triangleSize,
                     triangleSize,
                     triangleSize);
         }
@@ -92,13 +145,25 @@ public class TextActor extends SkitActor implements Observable<TextActorListener
             return true;
         }
         setTextDisplayed(false);
-        deltaTime = 0;
+        resetDialog();
 
         for (TextActorListener observer : observers) {
             observer.onNextDialog();
         }
 
         return false;
+    }
+
+    /**
+     * Reset dialog's variables in order to draw the current dialog from the beginning
+     */
+    private void resetDialog() {
+        deltaTime = 0;
+        displayedTextLength = 0;
+        textToDisplay.setLength(0);
+        textToDisplay
+                .append(currentDialog.getSpeaker().getName())
+                .append(": ");
     }
 
     private void setTextDisplayed(boolean textDisplayed) {
@@ -146,6 +211,22 @@ public class TextActor extends SkitActor implements Observable<TextActorListener
         if (textDisplayed) {
             nextDialog();
         } else {
+            textToDisplay.append(currentDialog.getText().substring(displayedTextLength));
+
+            // Remove as much as lines as needed in order to display the end of the current dialog
+            final float margin = Math.max(getWidth(), getHeight()) * MARGIN;
+            final int speakerNameLength = currentDialog.getSpeaker().getName().length() + 2;
+            boolean isEndOfText = false;
+            while (!isEndOfText) {
+                glyphLayout.setText(font, textToDisplay.toString(), BLACK, getWidth() - margin * 2, Align.topLeft, true);
+                if (glyphLayout.height >= getHeight() - 2 * margin) {
+                    textToDisplay.delete(speakerNameLength, glyphLayout.firstLine().length());
+                } else {
+                    isEndOfText = true; // Stop removing text lines
+                }
+            }
+
+            // So now that we displayed the end of the dialog, it's entirely displayed
             setTextDisplayed(true);
         }
 
